@@ -1,14 +1,26 @@
+import { Image, StyleSheet, Platform } from "react-native";
+
+import { HelloWave } from "@/components/HelloWave";
+import ParallaxScrollView from "@/components/ParallaxScrollView";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import QRCodeScanner from "@/components/QRCodeScanner";
 import { BarCodeScanner } from "expo-barcode-scanner";
-import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useState, useEffect } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+
+// import { BarCodeScanner } from "expo-barcode-scanner";
+// import React, { useEffect, useState } from "react";
+// import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+// import { useNavigation } from "@react-navigation/native";
 
 interface BarCodeScannedEvent {
   type: string;
   data: string;
 }
 
-export default function App() {
+export default function ScannerScreen() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scanned, setScanned] = useState<boolean>(false);
   const navigation = useNavigation();
@@ -67,15 +79,9 @@ export default function App() {
         <View style={styles.buttonGroup}>
           <TouchableOpacity
             style={styles.buttons2}
-            onPress={() => navigation.navigate("AddNewScreen")}
+            onPress={() => navigation.navigate("index")}
           >
-            <Text style={styles.buttonText}>Use QR</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.buttons2}
-            onPress={() => setScanned(false)}
-          >
-            <Text style={styles.buttonText}>Scan Again</Text>
+            <Text style={styles.buttonText}>Finish</Text>
           </TouchableOpacity>
         </View>
       )}

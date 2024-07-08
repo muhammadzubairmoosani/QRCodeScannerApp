@@ -5,9 +5,31 @@ import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import QRCodeScanner from "@/components/QRCodeScanner";
+import { BarCodeScanner } from "expo-barcode-scanner";
+import React, { useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 export default function HomeScreen() {
-  return <QRCodeScanner />;
+  const navigation = useNavigation();
+  // return <QRCodeScanner />;
+  return (
+    <View style={styles.homeContainer}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => navigation.navigate("SearchQRCodeScreen")}
+      >
+        <Text style={styles.buttonText}>Search existing</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.button}
+        // onPress={getBarCodeScannerPermissions}
+        onPress={() => navigation.navigate("ScannerScreen")}
+      >
+        <Text style={styles.buttonText}>Add New</Text>
+      </TouchableOpacity>
+    </View>
+  );
   // return (
   //   <ParallaxScrollView
   //     headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
@@ -56,21 +78,69 @@ export default function HomeScreen() {
   // );
 }
 
+// const styles = StyleSheet.create({
+//   titleContainer: {
+//     flexDirection: "row",
+//     alignItems: "center",
+//     gap: 8,
+//   },
+//   stepContainer: {
+//     gap: 8,
+//     marginBottom: 8,
+//   },
+//   reactLogo: {
+//     height: 178,
+//     width: 290,
+//     bottom: 0,
+//     left: 0,
+//     position: "absolute",
+//   },
+// });
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: "row",
+  homeContainer: {
+    backgroundColor: "#ffffff",
+    flex: 1,
+    flexDirection: "column",
+    justifyContent: "center",
+    gap: 30,
+    paddingHorizontal: 10,
+  },
+  button: {
+    backgroundColor: "#1e90ff",
+    paddingVertical: 18,
+    borderRadius: 8,
+    textAlign: "center",
+    flex: 0,
+    justifyContent: "center",
     alignItems: "center",
-    gap: 8,
+    flexDirection: "row",
+    width: "100%",
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  buttonText: {
+    color: "#fff",
+    fontSize: 22,
+    fontWeight: "bold",
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
+  container: {
+    flex: 1,
+    flexDirection: "column",
+    justifyContent: "space-between",
+  },
+  buttonGroup: {
+    flexDirection: "row",
+    gap: 20,
+    justifyContent: "space-around",
+    padding: 15,
+  },
+  buttons2: {
+    backgroundColor: "#1e90ff",
+    paddingVertical: 18,
+    borderRadius: 8,
+    textAlign: "center",
+    flex: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    width: "50%",
   },
 });
