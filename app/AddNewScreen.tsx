@@ -8,11 +8,40 @@ import QRCodeScanner from "@/components/QRCodeScanner";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import React, { useState } from "react";
 import { Text, TouchableOpacity, View, TextInput } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 
 export default function ScannerScreen() {
+  const route: any = useRoute();
+  const { scannedData } = route.params;
   const navigation = useNavigation();
   const [text, setText] = useState("");
+
+  const postData = async () => {
+    console.log({ ...scannedData, text });
+    // console.log(typeof scannedData.type);
+    try {
+      const response = await fetch("http://192.168.100.251:3000/data", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ...scannedData, text }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const result = await response.json();
+      console.log("Data added:", result);
+
+      // Navigate to ScannerScreen and pass the result data
+      navigation.navigate("index");
+    } catch (error) {
+      console.error("Error adding data:", error);
+    }
+  };
+
   return (
     <View style={styles.homeContainer}>
       <TextInput
@@ -27,7 +56,8 @@ export default function ScannerScreen() {
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate("index")}
+        // onPress={() => navigation.navigate("index")}
+        onPress={postData}
       >
         <Text style={styles.buttonText}>Save</Text>
       </TouchableOpacity>

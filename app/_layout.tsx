@@ -35,8 +35,8 @@ export default function RootLayout() {
       <Stack>
         {/* <Stack.Screen name="(tabs)" options={{ headerShown: false }} /> */}
         <Stack.Screen name="(tabs)" />
-        {/* <Stack.Screen name="(tabs)/ScannerScreen" /> */}
-        {/* <Stack.Screen name="(tabs)/AddNewScreen" /> */}
+        <Stack.Screen name="ScannerScreen" />
+        <Stack.Screen name="AddNewScreen" />
         <Stack.Screen name="+not-found" />
       </Stack>
     </ThemeProvider>

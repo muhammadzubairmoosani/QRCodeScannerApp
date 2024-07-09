@@ -1,20 +1,31 @@
+import { Image, StyleSheet, Platform } from "react-native";
+
+import { HelloWave } from "@/components/HelloWave";
+import ParallaxScrollView from "@/components/ParallaxScrollView";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import QRCodeScanner from "@/components/QRCodeScanner";
 import { BarCodeScanner } from "expo-barcode-scanner";
-import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import React, { useState, useEffect } from "react";
+import { Text, TouchableOpacity, ToastAndroid, View } from "react-native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+
+// import { BarCodeScanner } from "expo-barcode-scanner";
+// import React, { useEffect, useState } from "react";
+// import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+// import { useNavigation } from "@react-navigation/native";
 
 interface BarCodeScannedEvent {
   type: string;
   data: string;
 }
 
-export default function App() {
+export default function ScannerScreen({ text }: { text: string }) {
+  // const route: any = useRoute();
+  // const { text } = route.params;
+  console.log("====== ScannerScreen", text);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scanned, setScanned] = useState<boolean>(false);
-  const [scannedData, setScannedData] = useState<{
-    type: string;
-    data: string;
-  }>({ type: "", data: "" });
   const navigation = useNavigation();
 
   const getBarCodeScannerPermissions = async () => {
@@ -26,10 +37,43 @@ export default function App() {
     getBarCodeScannerPermissions();
   }, []);
 
-  const handleBarCodeScanned = ({ type, data }: BarCodeScannedEvent) => {
+  const handleBarCodeScanned = async ({ type, data }: BarCodeScannedEvent) => {
     setScanned(true);
-    setScannedData({ type, data });
     // alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+
+    try {
+      const response = await fetch(
+        `http://192.168.100.251:3000/data?text=${text}`
+      );
+
+      console.log(response);
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const result = await response.json();
+
+      if (result.length) {
+        if (
+          result[0].text === text &&
+          result[0].data === data &&
+          result[0].type === type
+        ) {
+          console.log("QR Code Matched!");
+          ToastAndroid.show("QR Code Matched!", ToastAndroid.LONG);
+        } else {
+          console.log("QR Code Not Match");
+
+          ToastAndroid.show("QR Code Not Match", ToastAndroid.LONG);
+        }
+      }
+      console.log("=======", result);
+
+      console.log("Data retrieved:", result);
+    } catch (error) {
+      console.error("Error retrieving data:", error);
+    }
   };
 
   // if (hasPermission === null) {
@@ -59,31 +103,17 @@ export default function App() {
     <View style={styles.container}>
       <BarCodeScanner
         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+        // onBarCodeScanned={handleBarCodeScanned}
         style={StyleSheet.absoluteFillObject}
       />
-      {/* <TouchableOpacity
-        style={styles.buttons2}
-        onPress={() => setHasPermission(null)}
-      >
-        <Text style={styles.buttonText}>Back</Text>
-      </TouchableOpacity> */}
-
-      {scanned && (
-        <View style={styles.buttonGroup}>
-          <TouchableOpacity
-            style={styles.buttons2}
-            onPress={() => navigation.navigate("AddNewScreen", { scannedData })}
-          >
-            <Text style={styles.buttonText}>Use QR</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.buttons2}
-            onPress={() => setScanned(false)}
-          >
-            <Text style={styles.buttonText}>Scan Again</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      <View style={styles.buttonGroup}>
+        <TouchableOpacity
+          style={styles.buttons2}
+          onPress={() => navigation.navigate("index")}
+        >
+          <Text style={styles.buttonText}>Finish</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }

@@ -4,10 +4,10 @@ import { HelloWave } from "@/components/HelloWave";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import QRCodeScanner from "@/components/QRCodeScanner";
+import ScanExistingQRCode from "@/components/ScanExistingQRCode";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import React, { useState, useEffect } from "react";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { Text, TouchableOpacity, View, TextInput } from "react-native";
 
 // import { BarCodeScanner } from "expo-barcode-scanner";
@@ -21,28 +21,12 @@ interface BarCodeScannedEvent {
 }
 
 export default function ScannerScreen() {
+  const route: any = useRoute();
+  const { text } = route.params;
   const navigation = useNavigation();
-  const [text, setText] = useState("");
-  return (
-    <View style={styles.homeContainer}>
-      <TextInput
-        style={styles.textArea}
-        placeholder="Type something..."
-        placeholderTextColor="#888"
-        multiline={true}
-        numberOfLines={4}
-        value={text}
-        onChangeText={setText}
-      />
-
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.navigate("ScanExistingQRCode", { text })}
-      >
-        <Text style={styles.buttonText}>Scan</Text>
-      </TouchableOpacity>
-    </View>
-  );
+  // const [text, setText] = useState("");
+  console.log("==============", text);
+  return <ScanExistingQRCode text={text} />;
 }
 
 const styles = StyleSheet.create({
