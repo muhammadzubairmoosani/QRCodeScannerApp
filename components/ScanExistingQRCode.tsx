@@ -9,6 +9,9 @@ import { BarCodeScanner } from "expo-barcode-scanner";
 import React, { useState, useEffect } from "react";
 import { Text, TouchableOpacity, ToastAndroid, View } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import { TabBarIcon } from "@/components/navigation/TabBarIcon";
+import { Colors } from "@/constants/Colors";
+import { useColorScheme } from "@/hooks/useColorScheme";
 
 // import { BarCodeScanner } from "expo-barcode-scanner";
 // import React, { useEffect, useState } from "react";
@@ -23,10 +26,12 @@ interface BarCodeScannedEvent {
 export default function ScannerScreen({ text }: { text: string }) {
   // const route: any = useRoute();
   // const { text } = route.params;
-  console.log("====== ScannerScreen", text);
+  // console.log("====== ScannerScreen", text);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scanned, setScanned] = useState<boolean>(false);
   const navigation = useNavigation();
+  const [state, setState] = useState<any>(null);
+  const [message, setMessage] = useState<string>("");
 
   const getBarCodeScannerPermissions = async () => {
     const { status } = await BarCodeScanner.requestPermissionsAsync();
@@ -39,14 +44,14 @@ export default function ScannerScreen({ text }: { text: string }) {
 
   const handleBarCodeScanned = async ({ type, data }: BarCodeScannedEvent) => {
     setScanned(true);
-    // alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+    // setMessage("");
 
+    // alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+    // if (!message) {
     try {
       const response = await fetch(
         `http://192.168.100.251:3000/data?text=${text}`
       );
-
-      console.log(response);
 
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -54,26 +59,42 @@ export default function ScannerScreen({ text }: { text: string }) {
 
       const result = await response.json();
 
-      if (result.length) {
-        if (
-          result[0].text === text &&
-          result[0].data === data &&
-          result[0].type === type
-        ) {
-          console.log("QR Code Matched!");
-          ToastAndroid.show("QR Code Matched!", ToastAndroid.LONG);
-        } else {
-          console.log("QR Code Not Match");
+      // if (result.length) {
+      // if (
+      //   result[0].text != text ||
+      //   result[0].data != data ||
+      //   result[0].type != type
+      // ) {
+      // console.log({ result, state });
+      if (
+        result[0]?.text === text &&
+        result[0]?.data === data &&
+        result[0]?.type === type
+      ) {
+        console.log("QR Code Matched!", { message });
+        message != "Matched" && setMessage("Matched");
+        // ToastAndroid.show("QR Code Matched!", ToastAndroid.SHORT);
+      } else {
+        console.log("QR Code Not Match", { message });
+        message != "Not Match" && setMessage("Not Match");
 
-          ToastAndroid.show("QR Code Not Match", ToastAndroid.LONG);
-        }
+        // ToastAndroid.show("QR Code Not Match", ToastAndroid.SHORT);
+        // }
+        // setState(result[0]);
       }
-      console.log("=======", result);
 
-      console.log("Data retrieved:", result);
+      // }
+      // console.log("=======", result);
+
+      // console.log("Data retrieved:", result);
     } catch (error) {
       console.error("Error retrieving data:", error);
     }
+    setTimeout(() => {
+      setMessage("");
+      setScanned(false);
+    }, 2000);
+    // }
   };
 
   // if (hasPermission === null) {
@@ -107,6 +128,38 @@ export default function ScannerScreen({ text }: { text: string }) {
         style={StyleSheet.absoluteFillObject}
       />
       <View style={styles.buttonGroup}>
+        {message ? (
+          <View
+            style={{
+              backgroundColor:
+                message === "Matched" ? "lightgreen" : "lightsalmon",
+              borderColor: message === "Matched" ? "darkgreen" : "darkred",
+              borderWidth: 1,
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 3,
+              paddingHorizontal: 18,
+              paddingVertical: 8,
+              borderRadius: 8,
+            }}
+          >
+            <TabBarIcon
+              name={"checkmark-circle"}
+              style={{ color: message === "Matched" ? "darkgreen" : "darkred" }}
+            />
+            <Text
+              style={{
+                color: message === "Matched" ? "darkgreen" : "darkred",
+                fontSize: 25,
+                fontWeight: "bold",
+              }}
+            >
+              {message}
+            </Text>
+          </View>
+        ) : (
+          <View></View>
+        )}
         <TouchableOpacity
           style={styles.buttons2}
           onPress={() => navigation.navigate("index")}
@@ -144,15 +197,19 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   container: {
+    backgroundColor: "#ffffff",
     flex: 1,
     flexDirection: "column",
     justifyContent: "flex-end",
+    // paddingVertical: 10,
   },
   buttonGroup: {
-    flexDirection: "row",
+    // flexDirection: "row",
     gap: 20,
-    justifyContent: "space-around",
+    alignItems: "center",
+    justifyContent: "space-between",
     padding: 15,
+    minHeight: "100%",
   },
   buttons2: {
     backgroundColor: "#1e90ff",
@@ -163,6 +220,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     flexDirection: "row",
-    width: "50%",
+    width: "100%",
   },
 });

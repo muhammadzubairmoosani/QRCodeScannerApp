@@ -68,22 +68,24 @@ export default function App() {
         <Text style={styles.buttonText}>Back</Text>
       </TouchableOpacity> */}
 
-      {scanned && (
-        <View style={styles.buttonGroup}>
-          <TouchableOpacity
-            style={styles.buttons2}
-            onPress={() => navigation.navigate("AddNewScreen", { scannedData })}
-          >
-            <Text style={styles.buttonText}>Use QR</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.buttons2}
-            onPress={() => setScanned(false)}
-          >
-            <Text style={styles.buttonText}>Scan Again</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      {/* {scanned && ( */}
+      <View style={styles.buttonGroup}>
+        <TouchableOpacity
+          disabled={!scanned}
+          style={[styles.buttons2, !scanned && styles.buttonDisabled]}
+          onPress={() => navigation.navigate("AddNewScreen", { scannedData })}
+        >
+          <Text style={styles.buttonText}>Use QR</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          disabled={!scanned}
+          style={[styles.buttons2, !scanned && styles.buttonDisabled]}
+          onPress={() => setScanned(false)}
+        >
+          <Text style={styles.buttonText}>Scan Again</Text>
+        </TouchableOpacity>
+      </View>
+      {/* )} */}
     </View>
   );
 }
@@ -134,5 +136,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     width: "50%",
+  },
+  buttonDisabled: {
+    backgroundColor: "#a9a9a9",
+    opacity: 0.3,
   },
 });
