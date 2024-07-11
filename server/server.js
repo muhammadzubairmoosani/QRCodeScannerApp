@@ -32,13 +32,10 @@ const DataModel = mongoose.model("Data", dataSchema);
 
 // POST API to add new data
 app.post("/data", async (req, res) => {
-  console.log("=========== ", req.body);
   try {
     const { type, data, text } = req.body;
-
     // Create a new document
     const newData = new DataModel({ type, data, text });
-
     // Save the document
     await newData.save();
     res.status(201).send(newData);
@@ -50,23 +47,11 @@ app.post("/data", async (req, res) => {
 // GET API to retrieve data by type, data, and text
 app.get("/data", async (req, res) => {
   try {
-    const { type, data, text } = req.query;
-
-    console.log("=========== ", text);
-    // Construct query object
-    const query = {};
-    // if (type) query.type = type;
-    // if (data) query.data = data;
-    if (text) query.text = text;
-
-    //   console.log("=========== ", text);
-
     // Find documents matching the query
-    const foundData = await DataModel.find(query);
-
+    const foundData = await DataModel.find(req.query.text);
     res.send(foundData);
   } catch (error) {
-    res.status500().send({ error: error.message });
+    res.status(500).send({ error: error.message });
   }
 });
 

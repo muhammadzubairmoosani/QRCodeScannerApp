@@ -1,22 +1,9 @@
-import { Image, StyleSheet, Platform } from "react-native";
-
-import { HelloWave } from "@/components/HelloWave";
-import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import QRCodeScanner from "@/components/QRCodeScanner";
-import { BarCodeScanner } from "expo-barcode-scanner";
-import React, { useState, useEffect } from "react";
-import { Text, TouchableOpacity, ToastAndroid, View } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { StyleSheet } from "react-native";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
-import { Colors } from "@/constants/Colors";
-import { useColorScheme } from "@/hooks/useColorScheme";
-
-// import { BarCodeScanner } from "expo-barcode-scanner";
-// import React, { useEffect, useState } from "react";
-// import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-// import { useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
+import { BarCodeScanner } from "expo-barcode-scanner";
+import React, { useEffect, useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 
 interface BarCodeScannedEvent {
   type: string;
@@ -24,15 +11,10 @@ interface BarCodeScannedEvent {
 }
 
 export default function ScannerScreen({ text }: { text: string }) {
-  // const route: any = useRoute();
-  // const { text } = route.params;
-  // console.log("====== ScannerScreen", text);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scanned, setScanned] = useState<boolean>(false);
   const navigation = useNavigation();
-  const [state, setState] = useState<any>(null);
   const [message, setMessage] = useState<string>("");
-
   const getBarCodeScannerPermissions = async () => {
     const { status } = await BarCodeScanner.requestPermissionsAsync();
     setHasPermission(status === "granted");
@@ -44,49 +26,23 @@ export default function ScannerScreen({ text }: { text: string }) {
 
   const handleBarCodeScanned = async ({ type, data }: BarCodeScannedEvent) => {
     setScanned(true);
-    // setMessage("");
-
-    // alert(`Bar code with type ${type} and data ${data} has been scanned!`);
-    // if (!message) {
     try {
       const response = await fetch(
         `http://192.168.100.251:3000/data?text=${text}`
       );
-
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-
       const result = await response.json();
-
-      // if (result.length) {
-      // if (
-      //   result[0].text != text ||
-      //   result[0].data != data ||
-      //   result[0].type != type
-      // ) {
-      // console.log({ result, state });
       if (
         result[0]?.text === text &&
         result[0]?.data === data &&
         result[0]?.type === type
       ) {
-        console.log("QR Code Matched!", { message });
         message != "Matched" && setMessage("Matched");
-        // ToastAndroid.show("QR Code Matched!", ToastAndroid.SHORT);
       } else {
-        console.log("QR Code Not Match", { message });
         message != "Not Match" && setMessage("Not Match");
-
-        // ToastAndroid.show("QR Code Not Match", ToastAndroid.SHORT);
-        // }
-        // setState(result[0]);
       }
-
-      // }
-      // console.log("=======", result);
-
-      // console.log("Data retrieved:", result);
     } catch (error) {
       console.error("Error retrieving data:", error);
     }
@@ -94,28 +50,7 @@ export default function ScannerScreen({ text }: { text: string }) {
       setMessage("");
       setScanned(false);
     }, 2000);
-    // }
   };
-
-  // if (hasPermission === null) {
-  //   return (
-  //     <View style={styles.homeContainer}>
-  //       <TouchableOpacity
-  //         style={styles.button}
-  //         onPress={getBarCodeScannerPermissions}
-  //       >
-  //         <Text style={styles.buttonText}>Search existing</Text>
-  //       </TouchableOpacity>
-  //       <TouchableOpacity
-  //         style={styles.button}
-  //         onPress={getBarCodeScannerPermissions}
-  //       >
-  //         <Text style={styles.buttonText}>Add New</Text>
-  //       </TouchableOpacity>
-  //     </View>
-  //   );
-  // }
-
   if (hasPermission === false) {
     return <Text>No access to camera</Text>;
   }
@@ -124,7 +59,6 @@ export default function ScannerScreen({ text }: { text: string }) {
     <View style={styles.container}>
       <BarCodeScanner
         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-        // onBarCodeScanned={handleBarCodeScanned}
         style={StyleSheet.absoluteFillObject}
       />
       <View style={styles.buttonGroup}>
@@ -172,25 +106,6 @@ export default function ScannerScreen({ text }: { text: string }) {
 }
 
 const styles = StyleSheet.create({
-  homeContainer: {
-    backgroundColor: "#ffffff",
-    flex: 1,
-    flexDirection: "column",
-    justifyContent: "center",
-    gap: 30,
-    paddingHorizontal: 10,
-  },
-  button: {
-    backgroundColor: "#1e90ff",
-    paddingVertical: 18,
-    borderRadius: 8,
-    textAlign: "center",
-    flex: 0,
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection: "row",
-    width: "100%",
-  },
   buttonText: {
     color: "#fff",
     fontSize: 22,
@@ -201,10 +116,8 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "column",
     justifyContent: "flex-end",
-    // paddingVertical: 10,
   },
   buttonGroup: {
-    // flexDirection: "row",
     gap: 20,
     alignItems: "center",
     justifyContent: "space-between",

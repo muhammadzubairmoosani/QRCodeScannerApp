@@ -1,8 +1,7 @@
+import { useNavigation } from "@react-navigation/native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-
 interface BarCodeScannedEvent {
   type: string;
   data: string;
@@ -29,28 +28,7 @@ export default function App() {
   const handleBarCodeScanned = ({ type, data }: BarCodeScannedEvent) => {
     setScanned(true);
     setScannedData({ type, data });
-    // alert(`Bar code with type ${type} and data ${data} has been scanned!`);
   };
-
-  // if (hasPermission === null) {
-  //   return (
-  //     <View style={styles.homeContainer}>
-  //       <TouchableOpacity
-  //         style={styles.button}
-  //         onPress={getBarCodeScannerPermissions}
-  //       >
-  //         <Text style={styles.buttonText}>Search existing</Text>
-  //       </TouchableOpacity>
-  //       <TouchableOpacity
-  //         style={styles.button}
-  //         onPress={getBarCodeScannerPermissions}
-  //       >
-  //         <Text style={styles.buttonText}>Add New</Text>
-  //       </TouchableOpacity>
-  //     </View>
-  //   );
-  // }
-
   if (hasPermission === false) {
     return <Text>No access to camera</Text>;
   }
@@ -61,14 +39,6 @@ export default function App() {
         onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
         style={StyleSheet.absoluteFillObject}
       />
-      {/* <TouchableOpacity
-        style={styles.buttons2}
-        onPress={() => setHasPermission(null)}
-      >
-        <Text style={styles.buttonText}>Back</Text>
-      </TouchableOpacity> */}
-
-      {/* {scanned && ( */}
       <View style={styles.buttonGroup}>
         <TouchableOpacity
           disabled={!scanned}
@@ -85,7 +55,6 @@ export default function App() {
           <Text style={styles.buttonText}>Scan Again</Text>
         </TouchableOpacity>
       </View>
-      {/* )} */}
     </View>
   );
 }

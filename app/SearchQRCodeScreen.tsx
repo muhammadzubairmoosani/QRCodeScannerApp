@@ -1,25 +1,7 @@
-import { Image, StyleSheet, Platform } from "react-native";
-
-import { HelloWave } from "@/components/HelloWave";
-import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import QRCodeScanner from "@/components/QRCodeScanner";
-import { BarCodeScanner } from "expo-barcode-scanner";
-import React, { useState, useEffect } from "react";
+import { StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Text, TouchableOpacity, View, TextInput } from "react-native";
-
-// import { BarCodeScanner } from "expo-barcode-scanner";
-// import React, { useEffect, useState } from "react";
-// import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-// import { useNavigation } from "@react-navigation/native";
-
-interface BarCodeScannedEvent {
-  type: string;
-  data: string;
-}
-
+import React, { useState } from "react";
+import { Text, TextInput, TouchableOpacity, View } from "react-native";
 export default function ScannerScreen() {
   const navigation = useNavigation();
   const [text, setText] = useState("");
@@ -27,7 +9,7 @@ export default function ScannerScreen() {
     <View style={styles.homeContainer}>
       <TextInput
         style={styles.textArea}
-        placeholder="Type something..."
+        placeholder="Add text"
         placeholderTextColor="#888"
         multiline={true}
         numberOfLines={4}
