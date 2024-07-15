@@ -48,7 +48,7 @@ app.post("/data", async (req, res) => {
 app.get("/data", async (req, res) => {
   try {
     // Find documents matching the query
-    const foundData = await DataModel.find(req.query.text);
+    const foundData = await DataModel.find({ text: req.query.text });
     res.send(foundData);
   } catch (error) {
     res.status(500).send({ error: error.message });

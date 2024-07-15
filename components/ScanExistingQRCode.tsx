@@ -1,31 +1,30 @@
-import { StyleSheet } from "react-native";
-import { TabBarIcon } from "@/components/navigation/TabBarIcon";
+import { CameraView, useCameraPermissions } from "expo-camera";
+import { useEffect, useState } from "react";
+import { Button, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { BarCodeScanner } from "expo-barcode-scanner";
-import React, { useEffect, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
-
-interface BarCodeScannedEvent {
-  type: string;
-  data: string;
-}
 
 export default function ScannerScreen({ text }: { text: string }) {
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [scanned, setScanned] = useState<boolean>(false);
+  const [permission, requestPermission] = useCameraPermissions();
+  const [bool, setBool] = useState<boolean | null>(null);
+  const [result, setResult] = useState<any>(null);
   const navigation = useNavigation();
-  const [message, setMessage] = useState<string>("");
-  const getBarCodeScannerPermissions = async () => {
-    const { status } = await BarCodeScanner.requestPermissionsAsync();
-    setHasPermission(status === "granted");
-  };
 
-  useEffect(() => {
-    getBarCodeScannerPermissions();
-  }, []);
+  if (!permission) {
+    return <View />;
+  }
 
-  const handleBarCodeScanned = async ({ type, data }: BarCodeScannedEvent) => {
-    setScanned(true);
+  if (!permission.granted) {
+    return (
+      <View style={styles.container}>
+        <Text style={{ textAlign: "center" }}>
+          We need your permission to show the camera
+        </Text>
+        <Button onPress={requestPermission} title="grant permission" />
+      </View>
+    );
+  }
+
+  const handleBarCodeScanned = async (type: any, data: any) => {
     try {
       const response = await fetch(
         `http://192.168.100.251:3000/data?text=${text}`
@@ -39,90 +38,75 @@ export default function ScannerScreen({ text }: { text: string }) {
         result[0]?.data === data &&
         result[0]?.type === type
       ) {
-        message != "Matched" && setMessage("Matched");
+        setBool(true);
       } else {
-        message != "Not Match" && setMessage("Not Match");
+        setBool(false);
       }
     } catch (error) {
       console.error("Error retrieving data:", error);
     }
-    setTimeout(() => {
-      setMessage("");
-      setScanned(false);
-    }, 2000);
   };
-  if (hasPermission === false) {
-    return <Text>No access to camera</Text>;
-  }
+
+  const cornerPoints = result?.cornerPoints || [
+    { x: 96.5, y: 231 },
+    { x: 103.5, y: 484 },
+    { x: 258, y: 485 },
+    { x: 261, y: 232.5 },
+  ];
+
+  const width = Math.abs(cornerPoints[2].x - cornerPoints[0].x);
+  const height = Math.abs(cornerPoints[1].y - cornerPoints[0].y);
 
   return (
     <View style={styles.container}>
-      <BarCodeScanner
-        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-        style={StyleSheet.absoluteFillObject}
-      />
-      <View style={styles.buttonGroup}>
-        {message ? (
-          <View
-            style={{
-              backgroundColor:
-                message === "Matched" ? "lightgreen" : "lightsalmon",
-              borderColor: message === "Matched" ? "darkgreen" : "darkred",
-              borderWidth: 1,
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 3,
-              paddingHorizontal: 18,
-              paddingVertical: 8,
-              borderRadius: 8,
-            }}
-          >
-            <TabBarIcon
-              name={"checkmark-circle"}
-              style={{ color: message === "Matched" ? "darkgreen" : "darkred" }}
-            />
-            <Text
-              style={{
-                color: message === "Matched" ? "darkgreen" : "darkred",
-                fontSize: 25,
-                fontWeight: "bold",
-              }}
-            >
-              {message}
-            </Text>
-          </View>
-        ) : (
-          <View></View>
-        )}
-        <TouchableOpacity
-          style={styles.buttons2}
-          onPress={() => navigation.navigate("index")}
-        >
-          <Text style={styles.buttonText}>Finish</Text>
-        </TouchableOpacity>
-      </View>
+      <CameraView
+        style={styles.camera}
+        facing={"back"}
+        barcodeScannerSettings={{
+          barcodeTypes: ["qr"],
+        }}
+        onBarcodeScanned={(result) => {
+          setResult(result);
+          handleBarCodeScanned(result.type, result.data);
+        }}
+      >
+        <View
+          style={{
+            ...styles.text,
+            position: "absolute",
+            left: cornerPoints[0].x,
+            top: cornerPoints[0].y,
+            width: width,
+            height: height,
+            borderColor:
+              bool == true ? "green" : bool == false ? "red" : "#fff",
+          }}
+        />
+      </CameraView>
+      <TouchableOpacity
+        style={styles.buttons2}
+        onPress={() => navigation.navigate("index")}
+      >
+        <Text style={styles.buttonText}>Finish</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  buttonText: {
-    color: "#fff",
-    fontSize: 22,
-    fontWeight: "bold",
-  },
   container: {
-    backgroundColor: "#ffffff",
     flex: 1,
-    flexDirection: "column",
-    justifyContent: "flex-end",
+    justifyContent: "center",
   },
-  buttonGroup: {
-    gap: 20,
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 15,
-    minHeight: "100%",
+  camera: {
+    flex: 1,
+  },
+  text: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "white",
+    backgroundColor: "transparent",
+    borderWidth: 4,
   },
   buttons2: {
     backgroundColor: "#1e90ff",
@@ -133,6 +117,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     flexDirection: "row",
-    width: "100%",
+    margin: 15,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 22,
+    fontWeight: "bold",
   },
 });
