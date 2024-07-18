@@ -1,7 +1,7 @@
-import { CameraView, useCameraPermissions } from "expo-camera";
-import { useEffect, useState } from "react";
-import { Button, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { CameraView, useCameraPermissions } from "expo-camera";
+import { useState } from "react";
+import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function ScannerScreen({ text }: { text: string }) {
   const [permission, requestPermission] = useCameraPermissions();
@@ -12,7 +12,6 @@ export default function ScannerScreen({ text }: { text: string }) {
   if (!permission) {
     return <View />;
   }
-
   if (!permission.granted) {
     return (
       <View style={styles.container}>
@@ -61,7 +60,6 @@ export default function ScannerScreen({ text }: { text: string }) {
     <View style={styles.container}>
       <CameraView
         style={styles.camera}
-        facing={"back"}
         barcodeScannerSettings={{
           barcodeTypes: ["qr"],
         }}

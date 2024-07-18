@@ -1,43 +1,47 @@
 import { useNavigation } from "@react-navigation/native";
-import { BarCodeScanner } from "expo-barcode-scanner";
-import React, { useEffect, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { CameraView, useCameraPermissions } from "expo-camera";
+import React, { useState } from "react";
+import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 interface BarCodeScannedEvent {
   type: string;
   data: string;
 }
 
 export default function App() {
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [scanned, setScanned] = useState<boolean>(false);
+  const [permission, requestPermission] = useCameraPermissions();
   const [scannedData, setScannedData] = useState<{
     type: string;
     data: string;
   }>({ type: "", data: "" });
   const navigation = useNavigation();
 
-  const getBarCodeScannerPermissions = async () => {
-    const { status } = await BarCodeScanner.requestPermissionsAsync();
-    setHasPermission(status === "granted");
-  };
-
-  useEffect(() => {
-    getBarCodeScannerPermissions();
-  }, []);
+  if (!permission) {
+    return <View />;
+  }
+  if (!permission.granted) {
+    return (
+      <View style={styles.container}>
+        <Text style={{ textAlign: "center" }}>
+          We need your permission to show the camera
+        </Text>
+        <Button onPress={requestPermission} title="grant permission" />
+      </View>
+    );
+  }
 
   const handleBarCodeScanned = ({ type, data }: BarCodeScannedEvent) => {
     setScanned(true);
     setScannedData({ type, data });
   };
-  if (hasPermission === false) {
-    return <Text>No access to camera</Text>;
-  }
-
   return (
     <View style={styles.container}>
-      <BarCodeScanner
-        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+      <CameraView
         style={StyleSheet.absoluteFillObject}
+        barcodeScannerSettings={{
+          barcodeTypes: ["qr"],
+        }}
+        onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
       />
       <View style={styles.buttonGroup}>
         <TouchableOpacity
